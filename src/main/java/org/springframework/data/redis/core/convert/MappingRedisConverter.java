@@ -402,13 +402,20 @@ public class MappingRedisConverter implements RedisConverter, InitializingBean {
 			return;
 		}
 
-		RedisPersistentEntity<?> entity = mappingContext.getPersistentEntity(source.getClass());
+		TypeInformation<?> typeInformation = ClassTypeInformation.from(source.getClass());
+		RedisPersistentEntity<?> entity = mappingContext.getPersistentEntity(typeInformation);
 
 		if (!customConversions.hasCustomWriteTarget(source.getClass())) {
 			typeMapper.writeType(ClassUtils.getUserClass(source), sink.getBucket().getPath());
 		}
 
 		if (entity == null) {
+
+			if(typeInformation.isCollectionLike()) {
+
+				writeCollection(null, "", (Collection)source, typeInformation.getRequiredComponentType(), sink);
+				return;
+			}
 
 			typeMapper.writeType(ClassUtils.getUserClass(source), sink.getBucket().getPath());
 			sink.getBucket().put("_raw", conversionService.convert(source, byte[].class));

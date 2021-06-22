@@ -17,7 +17,9 @@ package org.springframework.data.redis.core.mapping;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -106,6 +108,17 @@ public class RedisMappingContext extends KeyValueMappingContext<RedisPersistentE
 	protected RedisPersistentProperty createPersistentProperty(Property property, RedisPersistentEntity<?> owner,
 			SimpleTypeHolder simpleTypeHolder) {
 		return new RedisPersistentProperty(property, owner, simpleTypeHolder);
+	}
+
+	@Override
+	protected boolean shouldCreatePersistentEntityFor(TypeInformation<?> type) {
+
+		if(!super.shouldCreatePersistentEntityFor(type)) {
+			return false;
+		}
+
+		return !ClassUtils.isAssignable(Collection.class, type.getType());
+
 	}
 
 	/**

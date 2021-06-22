@@ -50,6 +50,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.mapping.MappingException;
+import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.redis.core.PartialUpdate;
 import org.springframework.data.redis.core.convert.KeyspaceConfiguration.KeyspaceSettings;
 import org.springframework.data.redis.core.mapping.RedisMappingContext;
@@ -77,6 +78,10 @@ class MappingRedisConverterUnitTests {
 
 	@BeforeEach
 	void setUp() {
+
+		RedisMappingContext mc = new RedisMappingContext();
+		mc.setSimpleTypeHolder(new SimpleTypeHolder(Collections.emptySet(), true));
+		mc.afterPropertiesSet();
 
 		converter = new MappingRedisConverter(new RedisMappingContext(), null, resolverMock);
 		converter.afterPropertiesSet();
