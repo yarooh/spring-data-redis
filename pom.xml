@@ -275,10 +275,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<!-- Retain stack traces -->
-					<argLine>
-						-XX:-OmitStackTraceInFastThrow
-						--add-opens java.base/java.util=ALL-UNNAMED
-					</argLine>
+					<argLine>-XX:-OmitStackTraceInFastThrow</argLine>
 					<useSystemClassLoader>false</useSystemClassLoader>
 					<includes>
 						<include>**/*Tests.java</include>
