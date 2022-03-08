@@ -118,7 +118,7 @@ Unfortunately, currently, not all connectors support all Redis features. When in
 
 | Other Connection Features
 | Singleton-connection sharing for non-blocking commands
-| `JedisShardInfo` support
+| Pipelining and Transactions mutually exclusive. Cannot use server/connection commands in pipeline/transactions.
 
 | SSL Support
 | X
@@ -130,11 +130,11 @@ Unfortunately, currently, not all connectors support all Redis features. When in
 
 | <<pipeline,Pipelining>>
 | X
-| X
+| X (Pipelining and Transactions mutually exclusive)
 
 | <<tx,Transactions>>
 | X
-| X
+| X (Pipelining and Transactions mutually exclusive)
 
 | Datatype support
 | Key, String, List, Set, Sorted Set, Hash, Server, Stream, Scripting, Geo, HyperLogLog
