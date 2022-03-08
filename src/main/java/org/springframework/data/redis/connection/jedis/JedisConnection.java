@@ -55,7 +55,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
- * {@code RedisConnection} implementation on top of <a href="https://github.com/xetorthio/jedis">Jedis</a> library.
+ * {@code RedisConnection} implementation on top of <a href="https://github.com/redis/jedis">Jedis</a> library.
  *
  * @author Costin Leau
  * @author Jennifer Hickey
@@ -513,12 +513,6 @@ public class JedisConnection extends AbstractRedisConnection {
 
 	<T> JedisResult<T, T> newJedisResult(Response<T> response) {
 		return JedisResultBuilder.<T, T> forResponse(response).build();
-	}
-
-	<T, R> JedisResult<T, R> newJedisResult(Response<T> response, Converter<T, R> converter) {
-
-		return JedisResultBuilder.<T, R> forResponse(response).mappedWith(converter)
-				.convertPipelineAndTxResults(convertPipelineAndTxResults).build();
 	}
 
 	<T, R> JedisResult<T, R> newJedisResult(Response<T> response, Converter<T, R> converter, Supplier<R> defaultValue) {
