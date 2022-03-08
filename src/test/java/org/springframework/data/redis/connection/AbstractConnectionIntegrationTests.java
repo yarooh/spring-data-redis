@@ -2836,7 +2836,7 @@ public abstract class AbstractConnectionIntegrationTests {
 
 	@SuppressWarnings("unchecked")
 	@Test // DATAREDIS-729
-	void zRevRangeByLexTest() {
+	public void zRevRangeByLexTest() {
 
 		actual.add(connection.zAdd("myzset", 0, "a"));
 		actual.add(connection.zAdd("myzset", 0, "b"));

@@ -18,6 +18,7 @@ package org.springframework.data.redis.connection.jedis;
 import redis.clients.jedis.StreamEntryID;
 import redis.clients.jedis.params.XAddParams;
 import redis.clients.jedis.params.XClaimParams;
+import redis.clients.jedis.params.XPendingParams;
 import redis.clients.jedis.params.XReadGroupParams;
 import redis.clients.jedis.params.XReadParams;
 import redis.clients.jedis.resps.StreamEntry;
@@ -260,4 +261,16 @@ class StreamConverters {
 
 	}
 
+	public static XPendingParams toXPendingParams(RedisStreamCommands.XPendingOptions options) {
+
+		Range<String> range = (Range<String>) options.getRange();
+		XPendingParams xPendingParams = XPendingParams.xPendingParams(StreamConverters.getLowerValue(range),
+				StreamConverters.getUpperValue(range), options.getCount().intValue());
+
+		if (options.hasConsumer()) {
+			xPendingParams.consumer(options.getConsumerName());
+		}
+
+		return xPendingParams;
+	}
 }

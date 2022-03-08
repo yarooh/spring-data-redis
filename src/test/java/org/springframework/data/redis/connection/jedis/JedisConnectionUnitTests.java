@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Map.Entry;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -277,6 +278,21 @@ class JedisConnectionUnitTests {
 			super.setUp();
 			connection.openPipeline();
 		}
+
+		@Test
+		@Disabled
+		@Override
+		void shutdownWithNullShouldDelegateCommandCorrectly() {}
+
+		@Test
+		@Disabled
+		@Override
+		void shutdownNosaveShouldBeSentCorrectly() {}
+
+		@Test
+		@Disabled
+		@Override
+		void shutdownSaveShouldBeSentCorrectly() {}
 
 		@Test // DATAREDIS-267
 		public void killClientShouldDelegateCallCorrectly() {

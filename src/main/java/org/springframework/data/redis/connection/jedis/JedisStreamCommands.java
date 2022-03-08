@@ -158,12 +158,8 @@ class JedisStreamCommands implements RedisStreamCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		if (isQueueing() || isPipelined()) {
-			throw new UnsupportedOperationException("'XINFO' cannot be called in pipeline / transaction mode.");
-		}
-
-		return connection.invoke().just(it -> {
-			redis.clients.jedis.resps.StreamInfo streamInfo = BuilderFactory.STREAM_INFO.build(it.xinfoStream(key));
+		return connection.invoke().from(Jedis::xinfoStream, ResponseCommands::xinfoStream, key).get(it -> {
+			redis.clients.jedis.resps.StreamInfo streamInfo = BuilderFactory.STREAM_INFO.build(it);
 			return StreamInfo.XInfoStream.fromList(StreamConverters.mapToList(streamInfo.getStreamInfo()));
 		});
 	}
@@ -173,7 +169,7 @@ class JedisStreamCommands implements RedisStreamCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().from(Jedis::xinfoGroup, StreamPipelineBinaryCommands::xinfoGroup, key).get(it -> {
+		return connection.invoke().from(Jedis::xinfoGroups, StreamPipelineBinaryCommands::xinfoGroups, key).get(it -> {
 			List<StreamGroupInfo> streamGroupInfos = BuilderFactory.STREAM_GROUP_INFO_LIST.build(it);
 			List<Object> sources = new ArrayList<>();
 			streamGroupInfos
@@ -188,13 +184,11 @@ class JedisStreamCommands implements RedisStreamCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.hasText(groupName, "Group name must not be null or empty!");
 
-		if (isQueueing() || isPipelined()) {
-			throw new UnsupportedOperationException("'XINFO CONSUMERS' cannot be called in pipeline / transaction mode.");
-		}
-
-		return connection.invoke().just(it -> {
+		return connection.invoke()
+				.from(Jedis::xinfoConsumers, ResponseCommands::xinfoConsumers, key, JedisConverters.toBytes(groupName))
+				.get(it -> {
 			List<StreamConsumersInfo> streamConsumersInfos = BuilderFactory.STREAM_CONSUMERS_INFO_LIST
-					.build(it.xinfoConsumers(key, JedisConverters.toBytes(groupName)));
+					.build(it);
 			List<Object> sources = new ArrayList<>();
 			streamConsumersInfos
 					.forEach(
@@ -223,15 +217,12 @@ class JedisStreamCommands implements RedisStreamCommands {
 		Assert.notNull(groupName, "GroupName must not be null!");
 
 		Range<String> range = (Range<String>) options.getRange();
-		byte[] group = JedisConverters.toBytes(groupName);
-		XPendingParams xPendingParams = XPendingParams.xPendingParams(StreamConverters.getLowerValue(range),
-				StreamConverters.getUpperValue(range), options.getCount().intValue());
+		XPendingParams xPendingParams = StreamConverters.toXPendingParams(options);
 
-		return connection.invoke().from(j -> {
-			List<Object> r = j.xpending(key, JedisConverters.toBytes(groupName), xPendingParams);
-
-			return BuilderFactory.STREAM_PENDING_ENTRY_LIST.build(r);
-		}).get(r -> StreamConverters.toPendingMessages(groupName, range, r));
+		return connection.invoke()
+				.from(Jedis::xpending, ResponseCommands::xpending, key, JedisConverters.toBytes(groupName), xPendingParams)
+				.get(r -> StreamConverters.toPendingMessages(groupName, range,
+						BuilderFactory.STREAM_PENDING_ENTRY_LIST.build(r)));
 	}
 
 	@Override
@@ -256,13 +247,10 @@ class JedisStreamCommands implements RedisStreamCommands {
 		Assert.notNull(readOptions, "StreamReadOptions must not be null!");
 		Assert.notNull(streams, "StreamOffsets must not be null!");
 
-		if (isQueueing() || isPipelined()) {
-			throw new UnsupportedOperationException("'XREAD' cannot be called in pipeline / transaction mode.");
-		}
-
 		XReadParams params = StreamConverters.toXReadParams(readOptions);
 
-		return connection.invoke().from(it -> it.xread(params, StreamConverters.toStreamOffsets(streams)))
+		return connection.invoke()
+				.from(Jedis::xread, ResponseCommands::xread, params, StreamConverters.toStreamOffsets(streams))
 				.getOrElse(StreamConverters::convertToByteRecords, Collections::emptyList);
 	}
 
@@ -274,17 +262,12 @@ class JedisStreamCommands implements RedisStreamCommands {
 		Assert.notNull(readOptions, "StreamReadOptions must not be null!");
 		Assert.notNull(streams, "StreamOffsets must not be null!");
 
-		if (isQueueing() || isPipelined()) {
-			throw new UnsupportedOperationException("'XREADGROUP' cannot be called in pipeline / transaction mode.");
-		}
-
 		XReadGroupParams params = StreamConverters.toXReadGroupParams(readOptions);
 
-		return connection.invoke().from(it -> {
-
-			return it.xreadGroup(JedisConverters.toBytes(consumer.getGroup()), JedisConverters.toBytes(consumer.getName()),
-					params, StreamConverters.toStreamOffsets(streams));
-		}).getOrElse(StreamConverters::convertToByteRecords, Collections::emptyList);
+		return connection.invoke()
+				.from(Jedis::xreadGroup, ResponseCommands::xreadGroup, JedisConverters.toBytes(consumer.getGroup()),
+						JedisConverters.toBytes(consumer.getName()), params, StreamConverters.toStreamOffsets(streams))
+				.getOrElse(StreamConverters::convertToByteRecords, Collections::emptyList);
 	}
 
 	@Override

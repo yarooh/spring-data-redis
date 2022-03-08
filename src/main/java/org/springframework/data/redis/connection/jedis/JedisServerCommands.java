@@ -35,8 +35,6 @@ import org.springframework.util.Assert;
  */
 class JedisServerCommands implements RedisServerCommands {
 
-	private static final String SHUTDOWN_SCRIPT = "return redis.call('SHUTDOWN','%s')";
-
 	private final JedisConnection connection;
 
 	JedisServerCommands(JedisConnection connection) {
