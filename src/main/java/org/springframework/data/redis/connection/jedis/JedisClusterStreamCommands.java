@@ -79,8 +79,8 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 		XAddParams params = StreamConverters.toXAddParams(options, record.getId());
 
 		try {
-			return RecordId.of(JedisConverters
-					.toString(connection.getCluster().xadd(record.getStream(), params, record.getValue())));
+			return RecordId
+					.of(JedisConverters.toString(connection.getCluster().xadd(record.getStream(), params, record.getValue())));
 		} catch (Exception ex) {
 			throw convertJedisAccessException(ex);
 		}
@@ -102,9 +102,8 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 
 		XClaimParams xClaimParams = StreamConverters.toXClaimParams(options);
 		try {
-			return convertToByteRecord(key,
-					connection.getCluster().xclaim(key, JedisConverters.toBytes(group), JedisConverters.toBytes(newOwner),
-							minIdleTime, xClaimParams, entryIdsToBytes(options.getIds())));
+			return convertToByteRecord(key, connection.getCluster().xclaim(key, JedisConverters.toBytes(group),
+					JedisConverters.toBytes(newOwner), minIdleTime, xClaimParams, entryIdsToBytes(options.getIds())));
 		} catch (Exception ex) {
 			throw convertJedisAccessException(ex);
 		}

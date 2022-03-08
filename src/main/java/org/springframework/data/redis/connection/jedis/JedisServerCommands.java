@@ -86,8 +86,7 @@ class JedisServerCommands implements RedisServerCommands {
 
 		Assert.notNull(section, "Section must not be null!");
 
-		return connection.invoke().from(j -> j.info(section))
-				.get(JedisConverters::toProperties);
+		return connection.invoke().from(j -> j.info(section)).get(JedisConverters::toProperties);
 	}
 
 	@Override
@@ -116,8 +115,7 @@ class JedisServerCommands implements RedisServerCommands {
 
 		Assert.notNull(pattern, "Pattern must not be null!");
 
-		return connection.invoke().from(j -> j.configGet(pattern))
-				.get(Converters::toProperties);
+		return connection.invoke().from(j -> j.configGet(pattern)).get(Converters::toProperties);
 	}
 
 	@Override
@@ -144,8 +142,7 @@ class JedisServerCommands implements RedisServerCommands {
 
 		Assert.notNull(timeUnit, "TimeUnit must not be null.");
 
-		return connection.invoke().from(Jedis::time)
-				.get((List<String> source) -> JedisConverters.toTime(source, timeUnit));
+		return connection.invoke().from(Jedis::time).get((List<String> source) -> JedisConverters.toTime(source, timeUnit));
 	}
 
 	@Override

@@ -791,8 +791,7 @@ public abstract class JedisConverters extends Converters {
 			return new GeoResultConverter(metric);
 		}
 
-		private static class GeoResultConverter
-				implements Converter<GeoRadiusResponse, GeoResult<GeoLocation<byte[]>>> {
+		private static class GeoResultConverter implements Converter<GeoRadiusResponse, GeoResult<GeoLocation<byte[]>>> {
 
 			private final Metric metric;
 

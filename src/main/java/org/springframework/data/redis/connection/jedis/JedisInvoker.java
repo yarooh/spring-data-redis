@@ -1017,25 +1017,23 @@ class JedisInvoker {
 
 		@Nullable
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		default <I, T> T invoke(Function<Jedis, I> callFunction,
-				Function<ResponseCommands, Response<I>> pipelineFunction) {
-			return (T) doInvoke((Function) callFunction, (Function) pipelineFunction, Converters.identityConverter(), () -> null);
+		default <I, T> T invoke(Function<Jedis, I> callFunction, Function<ResponseCommands, Response<I>> pipelineFunction) {
+			return (T) doInvoke((Function) callFunction, (Function) pipelineFunction, Converters.identityConverter(),
+					() -> null);
 		}
 
 		@Nullable
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		default <I, T> T invoke(Function<Jedis, I> callFunction,
-				Function<ResponseCommands, Response<I>> pipelineFunction, Converter<I, T> converter,
-				Supplier<T> nullDefault) {
+		default <I, T> T invoke(Function<Jedis, I> callFunction, Function<ResponseCommands, Response<I>> pipelineFunction,
+				Converter<I, T> converter, Supplier<T> nullDefault) {
 
 			return (T) doInvoke((Function) callFunction, (Function) pipelineFunction, (Converter<Object, Object>) converter,
 					(Supplier<Object>) nullDefault);
 		}
 
 		@Nullable
-		Object doInvoke(Function<Jedis, Object> callFunction,
-				Function<ResponseCommands, Response<Object>> pipelineFunction, Converter<Object, Object> converter,
-				Supplier<Object> nullDefault);
+		Object doInvoke(Function<Jedis, Object> callFunction, Function<ResponseCommands, Response<Object>> pipelineFunction,
+				Converter<Object, Object> converter, Supplier<Object> nullDefault);
 	}
 
 	interface ResponseCommands extends PipelineBinaryCommands, DatabasePipelineCommands {

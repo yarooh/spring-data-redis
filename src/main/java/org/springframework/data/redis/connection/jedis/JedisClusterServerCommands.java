@@ -197,11 +197,10 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 
 	@Override
 	public void shutdown() {
-		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) jedis -> {
-					jedis.shutdown();
-					return null;
-				});
+		connection.getClusterCommandExecutor().executeCommandOnAllNodes((JedisClusterCommandCallback<String>) jedis -> {
+			jedis.shutdown();
+			return null;
+		});
 	}
 
 	@Override
@@ -301,16 +300,18 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 	@Override
 	public Long time(TimeUnit timeUnit) {
 
-		return convertListOfStringToTime(connection.getClusterCommandExecutor()
-				.executeCommandOnArbitraryNode((JedisClusterCommandCallback<List<String>>) Jedis::time).getValue(),
+		return convertListOfStringToTime(
+				connection.getClusterCommandExecutor()
+						.executeCommandOnArbitraryNode((JedisClusterCommandCallback<List<String>>) Jedis::time).getValue(),
 				timeUnit);
 	}
 
 	@Override
 	public Long time(RedisClusterNode node, TimeUnit timeUnit) {
 
-		return convertListOfStringToTime(connection.getClusterCommandExecutor()
-				.executeCommandOnSingleNode((JedisClusterCommandCallback<List<String>>) Jedis::time, node).getValue(),
+		return convertListOfStringToTime(
+				connection.getClusterCommandExecutor()
+						.executeCommandOnSingleNode((JedisClusterCommandCallback<List<String>>) Jedis::time, node).getValue(),
 				timeUnit);
 	}
 

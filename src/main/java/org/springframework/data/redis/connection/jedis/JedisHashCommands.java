@@ -120,8 +120,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke()
-				.from(Jedis::hrandfieldWithValues, PipelineBinaryCommands::hrandfieldWithValues, key, 1L)
+		return connection.invoke().from(Jedis::hrandfieldWithValues, PipelineBinaryCommands::hrandfieldWithValues, key, 1L)
 				.get(it -> it.isEmpty() ? null : it.entrySet().iterator().next());
 	}
 

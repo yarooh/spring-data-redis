@@ -166,12 +166,10 @@ class JedisKeyCommands implements RedisKeyCommands {
 				if (type != null) {
 					result = connection.getJedis().scan(Long.toString(cursorId).getBytes(), params, type);
 				} else {
-					result = connection.getJedis().scan(Long.toString(cursorId).getBytes(),
-						params);
+					result = connection.getJedis().scan(Long.toString(cursorId).getBytes(), params);
 				}
 
-				return new ScanIteration<>(Long.parseLong(result.getCursor()),
-						result.getResult());
+				return new ScanIteration<>(Long.parseLong(result.getCursor()), result.getResult());
 			}
 
 			protected void doClose() {
@@ -260,8 +258,7 @@ class JedisKeyCommands implements RedisKeyCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().from(j -> j.move(key, dbIndex))
-				.get(JedisConverters.longToBoolean());
+		return connection.invoke().from(j -> j.move(key, dbIndex)).get(JedisConverters.longToBoolean());
 	}
 
 	@Override
@@ -353,8 +350,7 @@ class JedisKeyCommands implements RedisKeyCommands {
 		}
 
 		connection.invokeStatus().just(JedisBinaryCommands::restore, PipelineBinaryCommands::restore, key,
-				(int) ttlInMillis,
-				serializedValue);
+				(int) ttlInMillis, serializedValue);
 	}
 
 	@Nullable

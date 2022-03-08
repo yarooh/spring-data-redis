@@ -97,7 +97,6 @@ public class JedisConnection extends AbstractRedisConnection {
 	private final @Nullable Pool<Jedis> pool;
 	private final JedisClientConfig sentinelConfig;
 
-
 	private List<JedisResult> pipelinedResults = new ArrayList<>();
 	private Queue<FutureResult<Response<?>>> txResults = new LinkedList<>();
 
@@ -271,7 +270,6 @@ public class JedisConnection extends AbstractRedisConnection {
 
 	@Override
 	public Object execute(String command, byte[]... args) {
-
 
 		Assert.hasText(command, "A valid command needs to be specified!");
 		Assert.notNull(args, "Arguments must not be null!");
@@ -566,7 +564,7 @@ public class JedisConnection extends AbstractRedisConnection {
 		doWithJedis(it -> {
 
 			for (byte[] key : keys) {
-					it.watch(key);
+				it.watch(key);
 			}
 		});
 	}

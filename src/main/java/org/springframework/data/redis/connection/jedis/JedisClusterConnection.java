@@ -116,7 +116,6 @@ public class JedisClusterConnection implements RedisClusterConnection {
 				new JedisClusterNodeResourceProvider(cluster, topologyProvider), EXCEPTION_TRANSLATION);
 		disposeClusterCommandExecutorOnClose = true;
 
-
 		try {
 
 			DirectFieldAccessor executorDfa = new DirectFieldAccessor(cluster);
@@ -420,8 +419,8 @@ public class JedisClusterConnection implements RedisClusterConnection {
 	@Override
 	public String ping(RedisClusterNode node) {
 
-		return clusterCommandExecutor
-				.executeCommandOnSingleNode((JedisClusterCommandCallback<String>) Jedis::ping, node).getValue();
+		return clusterCommandExecutor.executeCommandOnSingleNode((JedisClusterCommandCallback<String>) Jedis::ping, node)
+				.getValue();
 	}
 
 	/*

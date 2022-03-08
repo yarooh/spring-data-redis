@@ -835,7 +835,6 @@ public class JedisConnectionFactory implements InitializingBean, DisposableBean,
 		throw new InvalidDataAccessResourceUsageException("No Sentinel found");
 	}
 
-
 	private static Set<HostAndPort> convertToJedisSentinelSet(Collection<RedisNode> nodes) {
 
 		if (CollectionUtils.isEmpty(nodes)) {

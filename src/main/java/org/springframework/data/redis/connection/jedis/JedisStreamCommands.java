@@ -99,8 +99,7 @@ class JedisStreamCommands implements RedisStreamCommands {
 		XClaimParams params = StreamConverters.toXClaimParams(options);
 
 		return connection.invoke()
-				.from(
-						Jedis::xclaim, ResponseCommands::xclaim, key, JedisConverters.toBytes(group),
+				.from(Jedis::xclaim, ResponseCommands::xclaim, key, JedisConverters.toBytes(group),
 						JedisConverters.toBytes(newOwner), options.getMinIdleTime().toMillis(), params,
 						StreamConverters.entryIdsToBytes(options.getIds()))
 				.get(r -> StreamConverters.convertToByteRecord(key, r));
@@ -187,14 +186,12 @@ class JedisStreamCommands implements RedisStreamCommands {
 		return connection.invoke()
 				.from(Jedis::xinfoConsumers, ResponseCommands::xinfoConsumers, key, JedisConverters.toBytes(groupName))
 				.get(it -> {
-			List<StreamConsumersInfo> streamConsumersInfos = BuilderFactory.STREAM_CONSUMERS_INFO_LIST
-					.build(it);
-			List<Object> sources = new ArrayList<>();
-			streamConsumersInfos
-					.forEach(
+					List<StreamConsumersInfo> streamConsumersInfos = BuilderFactory.STREAM_CONSUMERS_INFO_LIST.build(it);
+					List<Object> sources = new ArrayList<>();
+					streamConsumersInfos.forEach(
 							streamConsumersInfo -> sources.add(StreamConverters.mapToList(streamConsumersInfo.getConsumerInfo())));
-			return StreamInfo.XInfoConsumers.fromList(groupName, sources);
-		});
+					return StreamInfo.XInfoConsumers.fromList(groupName, sources);
+				});
 	}
 
 	@Override
