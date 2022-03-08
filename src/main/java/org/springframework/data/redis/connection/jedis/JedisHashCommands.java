@@ -15,10 +15,10 @@
  */
 package org.springframework.data.redis.connection.jedis;
 
-import redis.clients.jedis.BinaryJedis;
-import redis.clients.jedis.MultiKeyPipelineBase;
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.commands.PipelineBinaryCommands;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(field, "Field must not be null!");
 		Assert.notNull(value, "Value must not be null!");
 
-		return connection.invoke().from(BinaryJedis::hset, MultiKeyPipelineBase::hset, key, field, value)
+		return connection.invoke().from(Jedis::hset, PipelineBinaryCommands::hset, key, field, value)
 				.get(JedisConverters.longToBoolean());
 	}
 
@@ -66,7 +66,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(field, "Field must not be null!");
 		Assert.notNull(value, "Value must not be null!");
 
-		return connection.invoke().from(BinaryJedis::hsetnx, MultiKeyPipelineBase::hsetnx, key, field, value)
+		return connection.invoke().from(Jedis::hsetnx, PipelineBinaryCommands::hsetnx, key, field, value)
 				.get(JedisConverters.longToBoolean());
 	}
 
@@ -76,7 +76,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(fields, "Fields must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hdel, MultiKeyPipelineBase::hdel, key, fields);
+		return connection.invoke().just(Jedis::hdel, PipelineBinaryCommands::hdel, key, fields);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(field, "Fields must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hexists, MultiKeyPipelineBase::hexists, key, field);
+		return connection.invoke().just(Jedis::hexists, PipelineBinaryCommands::hexists, key, field);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(field, "Field must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hget, MultiKeyPipelineBase::hget, key, field);
+		return connection.invoke().just(Jedis::hget, PipelineBinaryCommands::hget, key, field);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hgetAll, MultiKeyPipelineBase::hgetAll, key);
+		return connection.invoke().just(Jedis::hgetAll, PipelineBinaryCommands::hgetAll, key);
 	}
 
 	@Nullable
@@ -111,7 +111,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hrandfield, MultiKeyPipelineBase::hrandfield, key);
+		return connection.invoke().just(Jedis::hrandfield, PipelineBinaryCommands::hrandfield, key);
 	}
 
 	@Nullable
@@ -121,7 +121,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 
 		return connection.invoke()
-				.from(BinaryJedis::hrandfieldWithValues, MultiKeyPipelineBase::hrandfieldWithValues, key, 1L)
+				.from(Jedis::hrandfieldWithValues, PipelineBinaryCommands::hrandfieldWithValues, key, 1L)
 				.get(it -> it.isEmpty() ? null : it.entrySet().iterator().next());
 	}
 
@@ -131,7 +131,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hrandfield, MultiKeyPipelineBase::hrandfield, key, count);
+		return connection.invoke().just(Jedis::hrandfield, PipelineBinaryCommands::hrandfield, key, count);
 	}
 
 	@Nullable
@@ -141,7 +141,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 
 		return connection.invoke()
-				.from(BinaryJedis::hrandfieldWithValues, MultiKeyPipelineBase::hrandfieldWithValues, key, count).get(it -> {
+				.from(Jedis::hrandfieldWithValues, PipelineBinaryCommands::hrandfieldWithValues, key, count).get(it -> {
 
 					List<Entry<byte[], byte[]>> entries = new ArrayList<>(it.size());
 					it.forEach((k, v) -> entries.add(Converters.entryOf(k, v)));
@@ -156,7 +156,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(field, "Field must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hincrBy, MultiKeyPipelineBase::hincrBy, key, field, delta);
+		return connection.invoke().just(Jedis::hincrBy, PipelineBinaryCommands::hincrBy, key, field, delta);
 	}
 
 	@Override
@@ -165,7 +165,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(field, "Field must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hincrByFloat, MultiKeyPipelineBase::hincrByFloat, key, field, delta);
+		return connection.invoke().just(Jedis::hincrByFloat, PipelineBinaryCommands::hincrByFloat, key, field, delta);
 	}
 
 	@Override
@@ -173,7 +173,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hkeys, MultiKeyPipelineBase::hkeys, key);
+		return connection.invoke().just(Jedis::hkeys, PipelineBinaryCommands::hkeys, key);
 	}
 
 	@Override
@@ -181,7 +181,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hlen, MultiKeyPipelineBase::hlen, key);
+		return connection.invoke().just(Jedis::hlen, PipelineBinaryCommands::hlen, key);
 	}
 
 	@Override
@@ -190,7 +190,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(fields, "Fields must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hmget, MultiKeyPipelineBase::hmget, key, fields);
+		return connection.invoke().just(Jedis::hmget, PipelineBinaryCommands::hmget, key, fields);
 	}
 
 	@Override
@@ -199,7 +199,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(hashes, "Hashes must not be null!");
 
-		connection.invokeStatus().just(BinaryJedis::hmset, MultiKeyPipelineBase::hmset, key, hashes);
+		connection.invokeStatus().just(Jedis::hmset, PipelineBinaryCommands::hmset, key, hashes);
 	}
 
 	@Override
@@ -207,7 +207,7 @@ class JedisHashCommands implements RedisHashCommands {
 
 		Assert.notNull(key, "Key must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hvals, MultiKeyPipelineBase::hvals, key);
+		return connection.invoke().just(Jedis::hvals, PipelineBinaryCommands::hvals, key);
 	}
 
 	@Override
@@ -257,7 +257,7 @@ class JedisHashCommands implements RedisHashCommands {
 		Assert.notNull(key, "Key must not be null!");
 		Assert.notNull(field, "Field must not be null!");
 
-		return connection.invoke().just(BinaryJedis::hstrlen, MultiKeyPipelineBase::hstrlen, key, field);
+		return connection.invoke().just(Jedis::hstrlen, PipelineBinaryCommands::hstrlen, key, field);
 	}
 
 	private boolean isPipelined() {

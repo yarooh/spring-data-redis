@@ -447,7 +447,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testPingPong() {
+	public void testPingPong() {
 		actual.add(connection.ping());
 		verifyResults(new ArrayList<>(Collections.singletonList("PONG")));
 	}
@@ -543,7 +543,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testInfo() {
+	public void testInfo() {
 
 		actual.add(connection.info());
 		List<Object> results = getResults();
@@ -762,7 +762,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testMultiAlreadyInTx() {
+	public void testMultiAlreadyInTx() {
 		connection.multi();
 		// Ensure it's OK to call multi twice
 		testMultiExec();
@@ -881,7 +881,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testDbSize() {
+	public void testDbSize() {
 
 		actual.add(connection.set("dbparam", "foo"));
 		actual.add(connection.dbSize());
@@ -889,7 +889,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testFlushDb() {
+	public void testFlushDb() {
 		connection.flushDb();
 		actual.add(connection.dbSize());
 		verifyResults(Arrays.asList(new Object[] { 0L }));
@@ -904,7 +904,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testEcho() {
+	public void testEcho() {
 		actual.add(connection.echo("Hello World"));
 		verifyResults(Arrays.asList(new Object[] { "Hello World" }));
 	}
@@ -2524,14 +2524,14 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test
-	void testLastSave() {
+	public void testLastSave() {
 		actual.add(connection.lastSave());
 		List<Object> results = getResults();
 		assertThat(results.get(0)).isNotNull();
 	}
 
 	@Test // DATAREDIS-206, DATAREDIS-513
-	void testGetTimeShouldRequestServerTime() {
+	public void testGetTimeShouldRequestServerTime() {
 
 		actual.add(connection.time());
 
@@ -2542,7 +2542,7 @@ public abstract class AbstractConnectionIntegrationTests {
 	}
 
 	@Test // GH-526
-	void testGetTimeShouldRequestServerTimeAsMicros() {
+	public void testGetTimeShouldRequestServerTimeAsMicros() {
 
 		actual.add(connection.time(TimeUnit.MICROSECONDS));
 		actual.add(connection.time(TimeUnit.SECONDS));
@@ -2628,21 +2628,17 @@ public abstract class AbstractConnectionIntegrationTests {
 		connection.lPush("list", "foo");
 		connection.sAdd("set", "foo");
 
-		try (Cursor<byte[]> cursor = connection.scan(KeyScanOptions.scanOptions().type("set").build())) {
-			assertThat(toList(cursor)).hasSize(1).contains("set");
-		}
+		Cursor<byte[]> cursor = connection.scan(KeyScanOptions.scanOptions().type("set").build());
+		assertThat(toList(cursor)).hasSize(1).contains("set");
 
-		try (Cursor<byte[]> cursor = connection.scan(KeyScanOptions.scanOptions().type("string").match("k*").build())) {
-			assertThat(toList(cursor)).hasSize(1).contains("key");
-		}
+		cursor = connection.scan(KeyScanOptions.scanOptions().type("string").match("k*").build());
+		assertThat(toList(cursor)).hasSize(1).contains("key");
 
-		try (Cursor<byte[]> cursor = connection.scan(KeyScanOptions.scanOptions().match("k*").build())) {
-			assertThat(toList(cursor)).hasSize(1).contains("key");
-		}
+		cursor = connection.scan(KeyScanOptions.scanOptions().match("k*").build());
+		assertThat(toList(cursor)).hasSize(1).contains("key");
 
-		try (Cursor<byte[]> cursor = connection.scan(KeyScanOptions.scanOptions().build())) {
-			assertThat(toList(cursor)).contains("key", "list", "set");
-		}
+		cursor = connection.scan(KeyScanOptions.scanOptions().build());
+		assertThat(toList(cursor)).contains("key", "list", "set");
 	}
 
 	private static List<String> toList(Cursor<byte[]> cursor) {

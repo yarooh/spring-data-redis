@@ -291,4 +291,85 @@ public class JedisConnectionTransactionIntegrationTests extends AbstractConnecti
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(super::xinfoConsumersNoConsumer);
 	}
 
+	@Test // DATAREDIS-296
+	@Disabled
+	public void testExecWithoutMulti() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiExec() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiDiscard() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testErrorInTx() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testWatch() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testUnwatch() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiAlreadyInTx() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testPingPong() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testFlushDb() {}
+
+	@Override
+	@Disabled
+	public void testEcho() {}
+
+	@Override
+	@Disabled
+	public void testInfo() {}
+
+	@Override
+	@Disabled
+	public void testMove() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testLastSave() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testGetTimeShouldRequestServerTime() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testGetTimeShouldRequestServerTimeAsMicros() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testDbSize() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testSelect() {}
+
 }

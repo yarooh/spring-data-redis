@@ -18,6 +18,10 @@ package org.springframework.data.redis.connection.jedis;
 import static org.springframework.data.redis.connection.jedis.StreamConverters.*;
 
 import redis.clients.jedis.BuilderFactory;
+import redis.clients.jedis.params.XAddParams;
+import redis.clients.jedis.params.XClaimParams;
+import redis.clients.jedis.params.XReadGroupParams;
+import redis.clients.jedis.params.XReadParams;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,15 +76,11 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 		Assert.notNull(record, "Record must not be null!");
 		Assert.notNull(record.getStream(), "Stream must not be null!");
 
-		byte[] id = JedisConverters.toBytes(record.getId().getValue());
-		long maxLength = Long.MAX_VALUE;
-		if (options.hasMaxlen()) {
-			maxLength = options.getMaxlen();
-		}
+		XAddParams params = StreamConverters.toXAddParams(options, record.getId());
 
 		try {
 			return RecordId.of(JedisConverters
-					.toString(connection.getCluster().xadd(record.getStream(), id, record.getValue(), maxLength, false)));
+					.toString(connection.getCluster().xadd(record.getStream(), params, record.getValue())));
 		} catch (Exception ex) {
 			throw convertJedisAccessException(ex);
 		}
@@ -99,13 +99,12 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 		Assert.notNull(newOwner, "NewOwner must not be null!");
 
 		long minIdleTime = options.getMinIdleTime() == null ? -1L : options.getMinIdleTime().toMillis();
-		int retryCount = options.getRetryCount() == null ? -1 : options.getRetryCount().intValue();
-		long unixTime = options.getUnixTime() == null ? -1L : options.getUnixTime().toEpochMilli();
 
+		XClaimParams xClaimParams = StreamConverters.toXClaimParams(options);
 		try {
 			return convertToByteRecord(key,
 					connection.getCluster().xclaim(key, JedisConverters.toBytes(group), JedisConverters.toBytes(newOwner),
-							minIdleTime, unixTime, retryCount, options.isForce(), entryIdsToBytes(options.getIds())));
+							minIdleTime, xClaimParams, entryIdsToBytes(options.getIds())));
 		} catch (Exception ex) {
 			throw convertJedisAccessException(ex);
 		}
@@ -248,12 +247,11 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 		Assert.notNull(readOptions, "StreamReadOptions must not be null!");
 		Assert.notNull(streams, "StreamOffsets must not be null!");
 
-		long block = readOptions.getBlock() == null ? -1L : readOptions.getBlock();
-		int count = readOptions.getCount() != null ? readOptions.getCount().intValue() : Integer.MAX_VALUE;
+		XReadParams xReadParams = StreamConverters.toXReadParams(readOptions);
 
 		try {
 
-			List<byte[]> xread = connection.getCluster().xread(count, block, toStreamOffsets(streams));
+			List<byte[]> xread = connection.getCluster().xread(xReadParams, toStreamOffsets(streams));
 
 			if (xread == null) {
 				return Collections.emptyList();
@@ -273,13 +271,12 @@ class JedisClusterStreamCommands implements RedisStreamCommands {
 		Assert.notNull(readOptions, "StreamReadOptions must not be null!");
 		Assert.notNull(streams, "StreamOffsets must not be null!");
 
-		long block = readOptions.getBlock() == null ? -1L : readOptions.getBlock();
-		int count = readOptions.getCount() == null ? -1 : readOptions.getCount().intValue();
+		XReadGroupParams xReadParams = StreamConverters.toXReadGroupParams(readOptions);
 
 		try {
 
 			List<byte[]> xread = connection.getCluster().xreadGroup(JedisConverters.toBytes(consumer.getGroup()),
-					JedisConverters.toBytes(consumer.getName()), count, block, readOptions.isNoack(), toStreamOffsets(streams));
+					JedisConverters.toBytes(consumer.getName()), xReadParams, toStreamOffsets(streams));
 
 			if (xread == null) {
 				return Collections.emptyList();

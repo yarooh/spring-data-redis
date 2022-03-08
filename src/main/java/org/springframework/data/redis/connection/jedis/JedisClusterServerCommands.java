@@ -15,7 +15,6 @@
  */
 package org.springframework.data.redis.connection.jedis;
 
-import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -53,30 +52,30 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 
 	@Override
 	public void bgReWriteAof(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::bgrewriteaof, node);
+		executeCommandOnSingleNode(Jedis::bgrewriteaof, node);
 	}
 
 	@Override
 	public void bgReWriteAof() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::bgrewriteaof);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) Jedis::bgrewriteaof);
 	}
 
 	@Override
 	public void bgSave() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::bgsave);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) Jedis::bgsave);
 	}
 
 	@Override
 	public void bgSave(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::bgsave, node);
+		executeCommandOnSingleNode(Jedis::bgsave, node);
 	}
 
 	@Override
 	public Long lastSave() {
 
-		List<Long> result = new ArrayList<>(executeCommandOnAllNodes(BinaryJedis::lastsave).resultsAsList());
+		List<Long> result = new ArrayList<>(executeCommandOnAllNodes(Jedis::lastsave).resultsAsList());
 
 		if (CollectionUtils.isEmpty(result)) {
 			return null;
@@ -88,23 +87,23 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 
 	@Override
 	public Long lastSave(RedisClusterNode node) {
-		return executeCommandOnSingleNode(BinaryJedis::lastsave, node).getValue();
+		return executeCommandOnSingleNode(Jedis::lastsave, node).getValue();
 	}
 
 	@Override
 	public void save() {
-		executeCommandOnAllNodes(BinaryJedis::save);
+		executeCommandOnAllNodes(Jedis::save);
 	}
 
 	@Override
 	public void save(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::save, node);
+		executeCommandOnSingleNode(Jedis::save, node);
 	}
 
 	@Override
 	public Long dbSize() {
 
-		Collection<Long> dbSizes = executeCommandOnAllNodes(BinaryJedis::dbSize).resultsAsList();
+		Collection<Long> dbSizes = executeCommandOnAllNodes(Jedis::dbSize).resultsAsList();
 
 		if (CollectionUtils.isEmpty(dbSizes)) {
 			return 0L;
@@ -119,28 +118,28 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 
 	@Override
 	public Long dbSize(RedisClusterNode node) {
-		return executeCommandOnSingleNode(BinaryJedis::dbSize, node).getValue();
+		return executeCommandOnSingleNode(Jedis::dbSize, node).getValue();
 	}
 
 	@Override
 	public void flushDb() {
-		executeCommandOnAllNodes(BinaryJedis::flushDB);
+		executeCommandOnAllNodes(Jedis::flushDB);
 	}
 
 	@Override
 	public void flushDb(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::flushDB, node);
+		executeCommandOnSingleNode(Jedis::flushDB, node);
 	}
 
 	@Override
 	public void flushAll() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::flushAll);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) Jedis::flushAll);
 	}
 
 	@Override
 	public void flushAll(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::flushAll, node);
+		executeCommandOnSingleNode(Jedis::flushAll, node);
 	}
 
 	@Override
@@ -164,7 +163,7 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 
 	@Override
 	public Properties info(RedisClusterNode node) {
-		return JedisConverters.toProperties(executeCommandOnSingleNode(BinaryJedis::info, node).getValue());
+		return JedisConverters.toProperties(executeCommandOnSingleNode(Jedis::info, node).getValue());
 	}
 
 	@Override
@@ -199,12 +198,18 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 	@Override
 	public void shutdown() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::shutdown);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) jedis -> {
+					jedis.shutdown();
+					return null;
+				});
 	}
 
 	@Override
 	public void shutdown(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::shutdown, node);
+		executeCommandOnSingleNode(jedis -> {
+			jedis.shutdown();
+			return null;
+		}, node);
 	}
 
 	@Override
@@ -274,30 +279,30 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 	@Override
 	public void resetConfigStats() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::configResetStat);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) Jedis::configResetStat);
 	}
 
 	@Override
 	public void rewriteConfig() {
 		connection.getClusterCommandExecutor()
-				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) BinaryJedis::configRewrite);
+				.executeCommandOnAllNodes((JedisClusterCommandCallback<String>) Jedis::configRewrite);
 	}
 
 	@Override
 	public void resetConfigStats(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::configResetStat, node);
+		executeCommandOnSingleNode(Jedis::configResetStat, node);
 	}
 
 	@Override
 	public void rewriteConfig(RedisClusterNode node) {
-		executeCommandOnSingleNode(BinaryJedis::configRewrite, node);
+		executeCommandOnSingleNode(Jedis::configRewrite, node);
 	}
 
 	@Override
 	public Long time(TimeUnit timeUnit) {
 
 		return convertListOfStringToTime(connection.getClusterCommandExecutor()
-				.executeCommandOnArbitraryNode((JedisClusterCommandCallback<List<String>>) BinaryJedis::time).getValue(),
+				.executeCommandOnArbitraryNode((JedisClusterCommandCallback<List<String>>) Jedis::time).getValue(),
 				timeUnit);
 	}
 
@@ -305,7 +310,7 @@ class JedisClusterServerCommands implements RedisClusterServerCommands {
 	public Long time(RedisClusterNode node, TimeUnit timeUnit) {
 
 		return convertListOfStringToTime(connection.getClusterCommandExecutor()
-				.executeCommandOnSingleNode((JedisClusterCommandCallback<List<String>>) BinaryJedis::time, node).getValue(),
+				.executeCommandOnSingleNode((JedisClusterCommandCallback<List<String>>) Jedis::time, node).getValue(),
 				timeUnit);
 	}
 

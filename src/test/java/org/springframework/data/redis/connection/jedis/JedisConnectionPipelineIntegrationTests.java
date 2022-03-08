@@ -19,9 +19,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -29,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.data.redis.SettingsUtils;
 import org.springframework.data.redis.connection.AbstractConnectionPipelineIntegrationTests;
-import org.springframework.data.redis.connection.DefaultStringRedisConnection;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.test.condition.EnabledOnCommand;
 import org.springframework.test.context.ContextConfiguration;
@@ -59,47 +55,6 @@ public class JedisConnectionPipelineIntegrationTests extends AbstractConnectionP
 			// sending QUIT to Redis
 		}
 		connection = null;
-	}
-
-	@Test
-	public void testWatch() {
-		connection.set("testitnow", "willdo");
-		connection.watch("testitnow".getBytes());
-		// Jedis doesn't actually send commands until you close the pipeline
-		getResults();
-		DefaultStringRedisConnection conn2 = new DefaultStringRedisConnection(connectionFactory.getConnection());
-		conn2.set("testitnow", "something");
-		conn2.close();
-		// Reopen the pipeline
-		initConnection();
-		connection.multi();
-		connection.set("testitnow", "somethingelse");
-		actual.add(connection.exec());
-		actual.add(connection.get("testitnow"));
-		verifyResults(Arrays.asList(new Object[] { null, "something" }));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testUnwatch() throws Exception {
-		connection.set("testitnow", "willdo");
-		connection.watch("testitnow".getBytes());
-		// Jedis doesn't actually send commands until you close the pipeline
-		getResults();
-		initConnection();
-		connection.unwatch();
-		// Jedis doesn't actually send commands until you close the pipeline
-		getResults();
-		initConnection();
-		connection.multi();
-		DefaultStringRedisConnection conn2 = new DefaultStringRedisConnection(connectionFactory.getConnection());
-		conn2.set("testitnow", "something");
-		connection.set("testitnow", "somethingelse");
-		connection.get("testitnow");
-		actual.add(connection.exec());
-		List<Object> results = getResults();
-		List<Object> execResults = (List<Object>) results.get(0);
-		assertThat(execResults).isEqualTo(Arrays.asList(new Object[] { true, "somethingelse" }));
 	}
 
 	@Test
@@ -332,4 +287,86 @@ public class JedisConnectionPipelineIntegrationTests extends AbstractConnectionP
 	@Test // DATAREDIS-296
 	@Disabled
 	public void testExecWithoutMulti() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiExec() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiDiscard() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testErrorInTx() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testWatch() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testUnwatch() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testMultiAlreadyInTx() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testPingPong() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testFlushDb() {}
+
+	@Override
+	@Disabled
+	public void testEcho() {}
+
+	@Override
+	@Disabled
+	public void testInfo() {}
+
+	@Override
+	@Disabled
+	public void testInfoBySection() {}
+
+	@Override
+	@Disabled
+	public void testMove() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testGetConfig() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testLastSave() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testGetTimeShouldRequestServerTime() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testGetTimeShouldRequestServerTimeAsMicros() {}
+
+	@Test
+	@Override
+	@Disabled
+	public void testDbSize() {}
+
 }

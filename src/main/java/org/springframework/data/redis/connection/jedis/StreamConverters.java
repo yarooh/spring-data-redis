@@ -15,9 +15,13 @@
  */
 package org.springframework.data.redis.connection.jedis;
 
-import redis.clients.jedis.StreamEntry;
 import redis.clients.jedis.StreamEntryID;
-import redis.clients.jedis.StreamPendingEntry;
+import redis.clients.jedis.params.XAddParams;
+import redis.clients.jedis.params.XClaimParams;
+import redis.clients.jedis.params.XReadGroupParams;
+import redis.clients.jedis.params.XReadParams;
+import redis.clients.jedis.resps.StreamEntry;
+import redis.clients.jedis.resps.StreamPendingEntry;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.time.Duration;
@@ -30,12 +34,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.stream.ByteRecord;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.PendingMessage;
 import org.springframework.data.redis.connection.stream.PendingMessages;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 
 /**
@@ -100,9 +106,10 @@ class StreamConverters {
 		return sources;
 	}
 
-	static Map<byte[], byte[]> toStreamOffsets(StreamOffset<byte[]>[] streams) {
+	static Map.Entry<byte[], byte[]>[] toStreamOffsets(StreamOffset<byte[]>[] streams) {
 		return Arrays.stream(streams)
-				.collect(Collectors.toMap(StreamOffset::getKey, v -> JedisConverters.toBytes(v.getOffset().getOffset())));
+				.collect(Collectors.toMap(StreamOffset::getKey, v -> JedisConverters.toBytes(v.getOffset().getOffset())))
+				.entrySet().toArray(new Map.Entry[0]);
 	}
 
 	static List<ByteRecord> convertToByteRecord(byte[] key, Object source) {
@@ -166,4 +173,91 @@ class StreamConverters {
 
 		return new PendingMessages(groupName, messages).withinRange(range);
 	}
+
+	public static XAddParams toXAddParams(RedisStreamCommands.XAddOptions options, RecordId recordId) {
+
+		XAddParams params = new XAddParams();
+		params.id(toStreamEntryId(recordId.getValue()));
+
+		if (options.hasMaxlen()) {
+			params.maxLen(options.getMaxlen());
+		}
+		if (options.isNoMkStream()) {
+			params.noMkStream();
+		}
+
+		return params;
+	}
+
+	private static StreamEntryID toStreamEntryId(String value) {
+
+		if ("*".equals(value)) {
+			return StreamEntryID.NEW_ENTRY;
+		}
+
+		if ("$".equals(value)) {
+			return StreamEntryID.LAST_ENTRY;
+		}
+
+		if (">".equals(value)) {
+			return StreamEntryID.UNRECEIVED_ENTRY;
+		}
+
+		return new StreamEntryID(value);
+	}
+
+	public static XClaimParams toXClaimParams(RedisStreamCommands.XClaimOptions options) {
+
+		XClaimParams params = XClaimParams.xClaimParams();
+
+		if (options.isForce()) {
+			params.force();
+		}
+
+		if (options.getRetryCount() != null) {
+			params.retryCount(options.getRetryCount().intValue());
+		}
+
+		if (options.getUnixTime() != null) {
+			params.time(options.getUnixTime().toEpochMilli());
+		}
+
+		return params;
+	}
+
+	public static XReadParams toXReadParams(StreamReadOptions readOptions) {
+
+		XReadParams params = XReadParams.xReadParams();
+
+		if (readOptions.isBlocking()) {
+			params.block(readOptions.getBlock().intValue());
+		}
+
+		if (readOptions.getCount() != null) {
+			params.count(readOptions.getCount().intValue());
+		}
+
+		return params;
+	}
+
+	public static XReadGroupParams toXReadGroupParams(StreamReadOptions readOptions) {
+
+		XReadGroupParams params = XReadGroupParams.xReadGroupParams();
+
+		if (readOptions.isBlocking()) {
+			params.block(readOptions.getBlock().intValue());
+		}
+
+		if (readOptions.getCount() != null) {
+			params.count(readOptions.getCount().intValue());
+		}
+
+		if (readOptions.isNoack()) {
+			params.noAck();
+		}
+
+		return params;
+
+	}
+
 }
