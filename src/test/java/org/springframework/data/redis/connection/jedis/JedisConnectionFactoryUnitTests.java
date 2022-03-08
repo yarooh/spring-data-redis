@@ -305,51 +305,6 @@ class JedisConnectionFactoryUnitTests {
 		assertThat(connectionFactory.getClusterConfiguration()).isSameAs(configuration);
 	}
 
-	@Test // DATAREDIS-974, GH-2017
-	void shouldApplySslConfigWhenCreatingClusterClient() throws NoSuchAlgorithmException {
-
-		SSLParameters sslParameters = new SSLParameters();
-		SSLContext context = SSLContext.getDefault();
-		SSLSocketFactory socketFactory = context.getSocketFactory();
-		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		HostnameVerifier hostNameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
-
-		JedisClientConfiguration configuration = JedisClientConfiguration.builder() //
-				.useSsl() //
-				.hostnameVerifier(hostNameVerifier) //
-				.sslParameters(sslParameters) //
-				.sslSocketFactory(socketFactory).and() //
-				.clientName("my-client") //
-				.connectTimeout(Duration.ofMinutes(1)) //
-				.readTimeout(Duration.ofMinutes(5)) //
-				.usePooling().poolConfig(poolConfig) //
-				.build();
-
-		connectionFactory = new JedisConnectionFactory(new RedisClusterConfiguration(), configuration);
-		connectionFactory.afterPropertiesSet();
-
-		RedisClusterConnection connection = connectionFactory.getClusterConnection();
-		assertThat(connection).isInstanceOf(JedisClusterConnection.class);
-
-		JedisCluster cluster = ((JedisClusterConnection) connection).getCluster();
-
-		// TODO
-		/*JedisClusterConnectionHandler connectionHandler = (JedisClusterConnectionHandler) ReflectionTestUtils
-				.getField(cluster, "connectionHandler");
-		JedisClusterInfoCache cache = (JedisClusterInfoCache) ReflectionTestUtils.getField(connectionHandler, "cache");
-		JedisClientConfig clientConfig = (JedisClientConfig) ReflectionTestUtils.getField(cache, "clientConfig");
-
-		assertThat(clientConfig.getConnectionTimeoutMillis()).isEqualTo(60000);
-		assertThat(clientConfig.getSocketTimeoutMillis()).isEqualTo(300000);
-		assertThat(clientConfig.getPassword()).isNull();
-		assertThat(clientConfig.getClientName()).isEqualTo("my-client");
-		assertThat(clientConfig.isSsl()).isEqualTo(true);
-		assertThat(clientConfig.getSslSocketFactory()).isEqualTo(socketFactory);
-		assertThat(clientConfig.getSslParameters()).isEqualTo(sslParameters);
-		assertThat(clientConfig.getHostnameVerifier()).isEqualTo(hostNameVerifier);
-		assertThat(clientConfig.getHostAndPortMapper()).isNull();*/
-	}
-
 	@Test // DATAREDIS-574
 	void shouldDenyChangesToImmutableClientConfiguration() throws NoSuchAlgorithmException {
 
